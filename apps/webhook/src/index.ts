@@ -1,6 +1,5 @@
 import express from "express";
-// import prisma from "@repo/db/client";
-const { prisma } = require("@repo/db/client")
+import db from "@repo/db/client";
 const app = express();
 
 app.use(express.json())
@@ -19,8 +18,8 @@ app.post("/hdfcWebhook", async (req, res) => {
     };
 
     try {
-        await prisma.$transaction([
-            prisma.balance.updateMany({
+        await db.$transaction([
+            db.balance.updateMany({
                 where: {
                     userId: Number(paymentInformation.userId)
                 },
@@ -31,14 +30,14 @@ app.post("/hdfcWebhook", async (req, res) => {
                     }
                 }
             }),
-        //     prisma.onRampTransaction.updateMany({
-        //         where: {
-        //             token: paymentInformation.token
-        //         }, 
-        //         data: {
-        //             status: "Success",
-        //         }
-        //     })
+            db.onRampTransaction.updateMany({
+                where: {
+                    token: paymentInformation.token
+                }, 
+                data: {
+                    status: "Success",
+                }
+            })
         ]);
 
         res.json({
@@ -50,8 +49,6 @@ app.post("/hdfcWebhook", async (req, res) => {
             message: "Error while processing webhook"
         })
     }
-
-    return res.json("hola")
 
 })
 
